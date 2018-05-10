@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { Health, HealthDataType } from '@ionic-native/health';
+import { Health } from '@ionic-native/health';
 
 @Component({
   selector: 'page-home',
@@ -9,6 +9,7 @@ import { Health, HealthDataType } from '@ionic-native/health';
 export class HomePage {
 
   public healthReportJsonFormatted: string;
+  public queryResult: string;
 
   constructor(public navCtrl: NavController, private health: Health) {
 
@@ -37,10 +38,27 @@ export class HomePage {
             write: ['height', 'weight']  //write only permission
           }
         ])
-          .then(res => this.healthReportJsonFormatted += '<br/>result: ' + JSON.stringify(res))
+          .then(res => {
+            this.healthReportJsonFormatted += '<br/>requestAuthorization: ' + JSON.stringify(res);
+            this.health.query({
+              startDate: new Date(new Date().getTime() - (3 * 24 * 60 * 60 * 1000)), // three days ago
+              endDate: new Date(), // now
+              dataType: 'activity'
+            }).then((result) => {
+              this.queryResult = 'query: ' + JSON.stringify(result);
+            });
+          })
           .catch(e => this.healthReportJsonFormatted += '<br/>error: ' + JSON.stringify(e));
       })
       .catch(e => this.healthReportJsonFormatted += '<br/>error: ' + JSON.stringify(e));
   }
+}
 
+
+export interface HealthResult {
+  startDate: Date;
+  endDate: Date;
+  sourceBundleId: string;
+  value: string,
+  unit: string
 }

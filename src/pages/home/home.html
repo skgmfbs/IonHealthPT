@@ -9,5 +9,9 @@
 <ion-content padding>
   <button ion-button (click)='getHealthReport()'>Refreash</button>
   <br/>
-  <div [innerHTML]="healthReportJsonFormatted"></div>
+  <div [innerHTML]="healthReportJsonFormatted">
+    {{queryResult}}
+  </div>
+  <br/>
+    {{queryResult}}
 </ion-content>
