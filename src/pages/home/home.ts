@@ -8,57 +8,89 @@ import { Health } from '@ionic-native/health';
 })
 export class HomePage {
 
-  public healthReportJsonFormatted: string;
+  public errorMessage: string;
   public queryResult: string;
+  public healthResults: HealthResult[] = [];
+  public dataType = 'Please, select';
+  public supportedDataTypes: string[] = [
+    'Please, select',
+    'steps',
+    'distance',
+    'appleExerciseTime',
+    'calories',
+    'calories.active',
+    'calories.basal',
+    'activity',
+    'height',
+    'weight',
+    'heart_rate',
+    'fat_percentage',
+    'blood_glucose',
+    'insulin',
+    'blood_pressure',
+    'gender',
+    'date_of_birth',
+    'nutrition',
+    'nutrition.calories',
+    'nutrition.fat.total',
+    'nutrition.fat.saturated',
+    'nutrition.fat.unsaturated',
+    'nutrition.fat.polyunsaturated',
+    'nutrition.fat.monounsaturated',
+    'nutrition.fat.trans',
+    'nutrition.cholesterol',
+    'nutrition.sodium',
+    'nutrition.potassium',
+    'nutrition.carbs.total',
+    'nutrition.dietary_fiber',
+    'nutrition.sugar',
+    'nutrition.protein',
+    'nutrition.vitamin_a',
+    'nutrition.vitamin_c',
+    'nutrition.calcium',
+    'nutrition.iron',
+    'nutrition.water',
+    'nutrition.caffeine',
+  ];
 
   constructor(public navCtrl: NavController, private health: Health) {
 
   }
 
-  public getHealthReport(): void {
-    /*this.health.isAvailable()
-    .then((available) => {
-      this.healthReportJsonFormatted = 'Available: ' + available;
-      let healthDataType:HealthDataType = {};
-      healthDataType.read = ['height', 'weight'];
-      healthDataType.write = ['height', 'weight'];
-      this.health.isAuthorized(['height', 'weight'])
-      .then((authorized) => {
-        this.healthReportJsonFormatted += '<br/>Authorized: ' + authorized;
-        
-      }).catch((errorMessage) => alert(JSON.stringify(errorMessage)));
-    }).catch((errorMessage) => alert(JSON.stringify(errorMessage)));*/
-    this.health.isAvailable()
-      .then((available: boolean) => {
-        this.healthReportJsonFormatted = 'Available: ' + available;
-        this.health.requestAuthorization([
-          'distance', 'nutrition',  //read and write permissions
-          {
-            read: ['steps'],       //read only permission
-            write: ['height', 'weight']  //write only permission
-          }
-        ])
-          .then(res => {
-            this.healthReportJsonFormatted += '<br/>requestAuthorization: ' + JSON.stringify(res);
-            this.health.query({
-              startDate: new Date(new Date().getTime() - (3 * 24 * 60 * 60 * 1000)), // three days ago
-              endDate: new Date(), // now
-              dataType: 'activity'
-            }).then((result) => {
-              this.queryResult = 'query: ' + JSON.stringify(result);
-            });
-          })
-          .catch(e => this.healthReportJsonFormatted += '<br/>error: ' + JSON.stringify(e));
-      })
-      .catch(e => this.healthReportJsonFormatted += '<br/>error: ' + JSON.stringify(e));
+  public getHealthReport(event: any): void {
+    if (!!this.dataType && this.dataType != 'Please, select') {
+      this.errorMessage = '';
+      this.health.isAvailable()
+        .then((available: boolean) => {
+          this.health.requestAuthorization([this.dataType])
+            .then(res => {
+              this.health.query({
+                startDate: new Date(new Date().getTime() - (3 * 24 * 60 * 60 * 1000)), // three days ago
+                endDate: new Date(), // now
+                dataType: this.dataType
+              }).then((result) => {
+                this.queryResult = JSON.stringify(result);
+                this.healthResults = JSON.parse(this.queryResult);
+              })
+              .catch(e => {
+                this.queryResult = '';
+                this.healthResults = [];
+                this.errorMessage = JSON.stringify(e);
+              });
+            })
+            .catch(e => this.errorMessage = JSON.stringify(e));
+        })
+        .catch(e => this.errorMessage = JSON.stringify(e));
+    }
   }
 }
-
 
 export interface HealthResult {
   startDate: Date;
   endDate: Date;
   sourceBundleId: string;
   value: string,
-  unit: string
+  unit: string,
+  distance: any[],
+  calories: any[],
 }

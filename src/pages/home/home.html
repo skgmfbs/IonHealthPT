@@ -1,17 +1,61 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Ionic Blank
+      Ionic Native Health plugin.
     </ion-title>
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
-  <button ion-button (click)='getHealthReport()'>Refreash</button>
-  <br/>
-  <div [innerHTML]="healthReportJsonFormatted">
-    {{queryResult}}
-  </div>
-  <br/>
-    {{queryResult}}
+<ion-content>
+  <ion-list>
+
+    <ion-list-header text-wrap>A plugin that abstracts fitness and health repositories like Apple HealthKit or Google Fit.</ion-list-header>
+
+    <ion-item>
+      <ion-label>Data type:</ion-label>
+      <ion-select [(ngModel)]="dataType" interface="popover" (ionChange)="getHealthReport($event)">
+        <ion-option *ngFor="let option of supportedDataTypes" [value]="option">{{option}}</ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item text-wrap *ngIf="!!errorMessage">
+      <div [innerHTML]="errorMessage"></div>
+    </ion-item>
+
+    <!--ion-item text-wrap *ngIf="!!queryResult">
+      {{queryResult}}
+    </ion-item-->
+
+  </ion-list>
+
+  <ion-card text-wrap *ngFor="let healthResult of healthResults">
+    <ion-item>
+      <ion-label>Start Date:</ion-label>
+      <ion-note item-end>{{healthResult.startDate}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>End Date:</ion-label>
+      <ion-note item-end>{{healthResult.endDate}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>Sourc Bundle Id:</ion-label>
+      <ion-note item-end>{{healthResult.sourceBundleId}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>Value:</ion-label>
+      <ion-note item-end>{{healthResult.value}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>Unit:</ion-label>
+      <ion-note item-end>{{healthResult.unit}}</ion-note>
+    </ion-item>
+    <ion-item *ngIf="!!distance">
+      <ion-label>Distance:</ion-label>
+      <ion-note item-end>{{healthResult.distance}}</ion-note>
+    </ion-item>
+    <ion-item *ngIf="!!calories">
+      <ion-label>Calories:</ion-label>
+      <ion-note item-end>{{healthResult.calories}}</ion-note>
+    </ion-item>
+  </ion-card>
 </ion-content>
