@@ -10,7 +10,14 @@
   <ion-list>
 
     <ion-list-header text-wrap>A plugin that abstracts fitness and health repositories like Apple HealthKit or Google Fit.</ion-list-header>
-
+    <ion-item>
+      <ion-label>Start Date:</ion-label>
+      <ion-datetime displayFormat="MMM DD YYYY" pickerFormat="MMM DD YYYY" [(ngModel)]="startDate"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label>End Date:</ion-label>
+      <ion-datetime displayFormat="MMM DD YYYY" pickerFormat="MMM DD YYYY" [(ngModel)]="endDate"></ion-datetime>
+    </ion-item>
     <ion-item>
       <ion-label>Data type:</ion-label>
       <ion-select [(ngModel)]="dataType" interface="popover" (ionChange)="getHealthReport($event)">
@@ -22,9 +29,9 @@
       <div [innerHTML]="errorMessage"></div>
     </ion-item>
 
-    <!--ion-item text-wrap *ngIf="!!queryResult">
-      {{queryResult}}
-    </ion-item-->
+    <ion-item *ngIf="!!queryResult">
+      <button item-end ion-button color="blue" outline (click)="openModal()">JSON data</button>
+    </ion-item>
 
   </ion-list>
 
@@ -43,17 +50,17 @@
     </ion-item>
     <ion-item>
       <ion-label>Value:</ion-label>
-      <ion-note item-end>{{healthResult.value}}</ion-note>
+      <ion-note item-end>{{healthResult.value | json}}</ion-note>
     </ion-item>
-    <ion-item>
+    <ion-item *ngIf="!!healthResult.unit">
       <ion-label>Unit:</ion-label>
       <ion-note item-end>{{healthResult.unit}}</ion-note>
     </ion-item>
-    <ion-item *ngIf="!!distance">
+    <ion-item *ngIf="!!healthResult.distance">
       <ion-label>Distance:</ion-label>
       <ion-note item-end>{{healthResult.distance}}</ion-note>
     </ion-item>
-    <ion-item *ngIf="!!calories">
+    <ion-item *ngIf="!!healthResult.calories">
       <ion-label>Calories:</ion-label>
       <ion-note item-end>{{healthResult.calories}}</ion-note>
     </ion-item>

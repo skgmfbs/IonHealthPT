@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
-import { Health } from '@ionic-native/health';
+import { ModalController } from 'ionic-angular';
+import { Health, HealthDataType } from '@ionic-native/health';
+
+import { ModalPage } from '../modal/modal';
 
 @Component({
   selector: 'page-home',
@@ -8,10 +10,12 @@ import { Health } from '@ionic-native/health';
 })
 export class HomePage {
 
-  public errorMessage: string;
-  public queryResult: string;
+  public queryResult: any;
   public healthResults: HealthResult[] = [];
+  public startDate = '';
+  public endDate = '';
   public dataType = 'Please, select';
+  public errorMessage = '';
   public supportedDataTypes: string[] = [
     'Please, select',
     'steps',
@@ -53,35 +57,51 @@ export class HomePage {
     'nutrition.caffeine',
   ];
 
-  constructor(public navCtrl: NavController, private health: Health) {
-
+  constructor(public modalCtrl: ModalController, private health: Health) {
+    this.startDate = new Date().toISOString();
+    this.endDate = new Date().toISOString();
   }
 
   public getHealthReport(event: any): void {
-    if (!!this.dataType && this.dataType != 'Please, select') {
-      this.errorMessage = '';
-      this.health.isAvailable()
-        .then((available: boolean) => {
-          this.health.requestAuthorization([this.dataType])
-            .then(res => {
-              this.health.query({
-                startDate: new Date(new Date().getTime() - (3 * 24 * 60 * 60 * 1000)), // three days ago
-                endDate: new Date(), // now
-                dataType: this.dataType
-              }).then((result) => {
-                this.queryResult = JSON.stringify(result);
-                this.healthResults = JSON.parse(this.queryResult);
+    try {
+      if (!!this.dataType && this.dataType != 'Please, select') {
+        this.errorMessage = '';
+        this.health.isAvailable()
+          .then((available: boolean) => {
+            let healthDataType: HealthDataType = {};
+            if (this.dataType === 'gender' || this.dataType === 'date_of_birth') {
+              healthDataType.read = [this.dataType, 'height', 'weight'];
+            } else {
+              healthDataType.read = [this.dataType];
+            }
+            this.health.requestAuthorization([healthDataType])
+              .then(res => {
+                this.health.query({
+                  startDate: new Date(this.startDate),
+                  endDate: new Date(this.endDate),
+                  dataType: this.dataType
+                }).then((result) => {
+                  this.queryResult = result;
+                  this.healthResults = JSON.parse(JSON.stringify(result));
+                }).catch(e => {
+                  this.queryResult = '';
+                  this.healthResults = [];
+                  this.errorMessage = JSON.stringify(e);
+                });
               })
-              .catch(e => {
-                this.queryResult = '';
-                this.healthResults = [];
-                this.errorMessage = JSON.stringify(e);
-              });
-            })
-            .catch(e => this.errorMessage = JSON.stringify(e));
-        })
-        .catch(e => this.errorMessage = JSON.stringify(e));
+              .catch(e => this.errorMessage = JSON.stringify(e));
+          })
+          .catch(e => this.errorMessage = JSON.stringify(e));
+      }
     }
+    catch (error) {
+      this.errorMessage = JSON.stringify(error);
+    }
+  }
+
+  public openModal(): void {
+    let modal = this.modalCtrl.create(ModalPage, { jsonData: this.queryResult });
+    modal.present();
   }
 }
 
