@@ -58,7 +58,7 @@ export class HomePage {
   ];
 
   constructor(public modalCtrl: ModalController, private health: Health) {
-    this.startDate = new Date().toISOString();
+    this.startDate = new Date(new Date().getTime() - 1000).toISOString();
     this.endDate = new Date().toISOString();
   }
 
