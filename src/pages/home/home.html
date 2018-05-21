@@ -21,6 +21,7 @@
     <ion-item>
       <ion-label>Data type:</ion-label>
       <ion-select [(ngModel)]="dataType" interface="popover" (ionChange)="getHealthReport($event)">
+        <ion-option value="Please, select">Please, select</ion-option>
         <ion-option *ngFor="let option of supportedDataTypes" [value]="option">{{option}}</ion-option>
       </ion-select>
     </ion-item>
@@ -29,25 +30,17 @@
       <div [innerHTML]="errorMessage"></div>
     </ion-item>
 
-    <ion-item *ngIf="!!queryResult">
-      <button item-end ion-button color="blue" outline (click)="openModal()">JSON data</button>
+    <ion-item text-wrap *ngIf="!!queryResult">
+      <pre>{{queryResult | json}}</pre>
     </ion-item>
+
+    <!--ion-item *ngIf="!!queryResult">
+      <button item-end ion-button color="blue" outline (click)="openModal()">JSON data</button>
+    </ion-item-->
 
   </ion-list>
 
-  <ion-card text-wrap *ngFor="let healthResult of healthResults">
-    <ion-item>
-      <ion-label>Start Date:</ion-label>
-      <ion-note item-end>{{healthResult.startDate}}</ion-note>
-    </ion-item>
-    <ion-item>
-      <ion-label>End Date:</ion-label>
-      <ion-note item-end>{{healthResult.endDate}}</ion-note>
-    </ion-item>
-    <ion-item>
-      <ion-label>Sourc Bundle Id:</ion-label>
-      <ion-note item-end>{{healthResult.sourceBundleId}}</ion-note>
-    </ion-item>
+  <!--ion-card text-wrap *ngFor="let healthResult of healthResults">
     <ion-item>
       <ion-label>Value:</ion-label>
       <ion-note item-end>{{healthResult.value | json}}</ion-note>
@@ -64,5 +57,5 @@
       <ion-label>Calories:</ion-label>
       <ion-note item-end>{{healthResult.calories}}</ion-note>
     </ion-item>
-  </ion-card>
+  </ion-card-->
 </ion-content>

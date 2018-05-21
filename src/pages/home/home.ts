@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ModalController } from 'ionic-angular';
-import { Health, HealthDataType } from '@ionic-native/health';
 
+import { HealthCareDataProvider, HealthCareDataProviderFactory } from '../../providers';
 import { ModalPage } from '../modal/modal';
 
 @Component({
@@ -10,82 +10,43 @@ import { ModalPage } from '../modal/modal';
 })
 export class HomePage {
 
+  private healthDataProvider: HealthCareDataProvider;
+
   public queryResult: any;
-  public healthResults: HealthResult[] = [];
+  //public healthResults: HealthResult[] = [];
   public startDate = '';
   public endDate = '';
   public dataType = 'Please, select';
   public errorMessage = '';
-  public supportedDataTypes: string[] = [
-    'Please, select',
-    'steps',
-    'distance',
-    'appleExerciseTime',
-    'calories',
-    'calories.active',
-    'calories.basal',
-    'activity',
-    'height',
-    'weight',
-    'heart_rate',
-    'fat_percentage',
-    'blood_glucose',
-    'insulin',
-    'blood_pressure',
-    'gender',
-    'date_of_birth',
-    'nutrition',
-    'nutrition.calories',
-    'nutrition.fat.total',
-    'nutrition.fat.saturated',
-    'nutrition.fat.unsaturated',
-    'nutrition.fat.polyunsaturated',
-    'nutrition.fat.monounsaturated',
-    'nutrition.fat.trans',
-    'nutrition.cholesterol',
-    'nutrition.sodium',
-    'nutrition.potassium',
-    'nutrition.carbs.total',
-    'nutrition.dietary_fiber',
-    'nutrition.sugar',
-    'nutrition.protein',
-    'nutrition.vitamin_a',
-    'nutrition.vitamin_c',
-    'nutrition.calcium',
-    'nutrition.iron',
-    'nutrition.water',
-    'nutrition.caffeine',
-  ];
+  public supportedDataTypes: string[] = [];
 
-  constructor(public modalCtrl: ModalController, private health: Health) {
+  constructor(public modalCtrl: ModalController,
+    private healthFactory: HealthCareDataProviderFactory) {
     this.startDate = new Date().toISOString();
     this.endDate = new Date().toISOString();
+    this.healthDataProvider = this.healthFactory.getInstance();
+    this.supportedDataTypes = this.healthDataProvider.getSupportedDataType();
   }
 
   public getHealthReport(event: any): void {
     try {
       if (!!this.dataType && this.dataType != 'Please, select') {
         this.errorMessage = '';
-        this.health.isAvailable()
+        this.healthDataProvider.isAvailable()
           .then((available: boolean) => {
-            let healthDataType: HealthDataType = {};
-            if (this.dataType === 'gender' || this.dataType === 'date_of_birth') {
-              healthDataType.read = [this.dataType, 'height', 'weight'];
-            } else {
-              healthDataType.read = [this.dataType];
-            }
-            this.health.requestAuthorization([healthDataType])
+            this.healthDataProvider.requestAuthorization([this.dataType])
               .then(res => {
-                this.health.query({
+                this.healthDataProvider.query({
                   startDate: new Date(this.startDate),
                   endDate: new Date(this.endDate),
                   dataType: this.dataType
                 }).then((result) => {
+                  //this.queryResult = JSON.stringify(result);
                   this.queryResult = result;
-                  this.healthResults = JSON.parse(JSON.stringify(result));
+                  //this.healthResults = JSON.parse(JSON.stringify(result));
                 }).catch(e => {
                   this.queryResult = '';
-                  this.healthResults = [];
+                  //this.healthResults = [];
                   this.errorMessage = JSON.stringify(e);
                 });
               })
