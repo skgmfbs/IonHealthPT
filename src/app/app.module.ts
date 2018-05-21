@@ -5,7 +5,9 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 
 import { Health } from '@ionic-native/health';
+import { HealthKit, } from '@ionic-native/health-kit';
 
+import { HealthCareDataProviderFactory } from '../providers'
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -31,7 +33,9 @@ import { ModalPage } from '../pages/modal/modal';
     StatusBar,
     SplashScreen,
     Health,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    HealthKit,
+    HealthCareDataProviderFactory,
+    { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })
-export class AppModule {}
+export class AppModule { }
